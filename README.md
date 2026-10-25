@@ -1,16 +1,45 @@
-# React + Vite
+# MegaProject
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A React app built with Vite, with Appwrite authentication support for creating accounts, logging in, checking the current user, and logging out.
 
-Currently, two official plugins are available:
+## Requirements
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js and npm
+- An Appwrite project
 
-## React Compiler
+## Getting started
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Install dependencies:
 
-## Expanding the Oxlint configuration
+   ```bash
+   npm install
+   ```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+2. Create a `.env` file in the project root and add your Appwrite configuration:
+
+   ```env
+   VITE_APPWRITE_URL=https://cloud.appwrite.io/v1
+   VITE_APPWRITE_PROJECT_ID=your-project-id
+   VITE_APPWRITE_DATABASE_ID=your-database-id
+   VITE_APPWRITE_COLLECTION_ID=your-collection-id
+   VITE_APPWRITE_BUCKET_ID=your-bucket-id
+   ```
+
+   Use the endpoint and IDs for your Appwrite project. The authentication service currently uses the endpoint and project ID.
+
+3. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+## Available scripts
+
+- `npm run dev` — start the local development server
+- `npm run build` — build the app for production
+- `npm run preview` — preview the production build locally
+- `npm run lint` — run Oxlint
+
+## Current status
+
+The app screen is currently a placeholder. Appwrite authentication logic is in `src/appwrite/auth.js`, and environment-based configuration is in `src/conf/conf.js`.
