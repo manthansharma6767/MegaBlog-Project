@@ -1,4 +1,4 @@
-# MegaProject
+# Mega-Blog
 
 A React app built with Vite, with Appwrite authentication support for creating accounts, logging in, checking the current user, and logging out.
 
