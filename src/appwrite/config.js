@@ -1,6 +1,5 @@
-import conf from '../conf.js';
-import {Client, ID , Databases, Storage, Query} from 'appwrite';
-
+import conf from '../conf/conf.js';
+import { Client, Databases, Storage, Query, ID } from 'appwrite';
 
 export class Service {
     client = new Client();
@@ -11,125 +10,83 @@ export class Service {
         this.client
             .setEndpoint(conf.appwriteUrl)
             .setProject(conf.appwriteProjectID);
+
         this.databases = new Databases(this.client);
         this.bucket = new Storage(this.client);
     }
 
-    async createPost({title , content , slug , featuredImage , status , userId}) {
-        try {
-            const post = await this.databases.createDocument(
-                conf.appwriteProjectID,
-                conf.appwriteDatabaseID,
-                slug,
-                {
-                    title: title,
-                    content: content,
-                    featuredImage: featuredImage,
-                    status: status,
-                    userId: userId
-                }
-            )
-        }
-        catch (error) {
-            throw error;
-        }
+    async createPost({ title, content, slug, featuredImage, status, userId }) {
+        return await this.databases.createDocument(
+            conf.appwriteDatabaseID,
+            conf.appwriteCollectionID,
+            slug,
+            {
+                title,
+                content,
+                featuredImage,
+                status,
+                userId,
+            }
+        );
     }
 
-    async updatePost(slug , {title , content , featuredImage , status}) {
-        try {
-            return await this.databases.updateDocument(
-                conf.appwriteProjectID,
-                conf.appwriteDatabaseID,
-                slug,
-                {
-                    title: title,
-                    content: content,
-                    featuredImage: featuredImage,
-                    status: status
-                }
-            )
-        }
-        catch (error) {
-            throw error;
-        }
+    async updatePost(slug, { title, content, featuredImage, status }) {
+        return await this.databases.updateDocument(
+            conf.appwriteDatabaseID,
+            conf.appwriteCollectionID,
+            slug,
+            {
+                title,
+                content,
+                featuredImage,
+                status,
+            }
+        );
     }
 
-    async deletePost(slug , {collectionId , databaseId , documentId}) {
-        try {
-            await this.databases.deleteDocument(
-                databaseId,
-                collectionId,
-                documentId
-            )
-            return true;
-        }
-        catch (error) {
-            throw error;
+    async deletePost(documentId, { collectionId, databaseId } = {}) {
+        if (!databaseId || !collectionId) {
             return false;
         }
+
+        await this.databases.deleteDocument(databaseId, collectionId, documentId);
+        return true;
     }
 
     async getPost(slug) {
-        try{
-            const posts = await this.databases.listDocuments(
-                conf.databaseId,
-                conf.collectionId,
-                conf.documentId,
-            )
-        }
-        catch(error) {
-            throw error;
-        }
-
-        return posts;
+        return await this.databases.listDocuments(
+            conf.appwriteDatabaseID,
+            conf.appwriteCollectionID,
+            [Query.equal('$id', slug)]
+        );
     }
 
-    async getPosts(queries = [Query.equal("status" , "active")]) {
-        try {
-            return this.databases.listDocuments(
-                conf.appwriteDatabaseID,
-                conf.collectionId,
-                queries
-            )
-        }
-        catch (error) {
-            throw error
-        }
+    async getPosts(queries = [Query.equal('status', 'active')]) {
+        return await this.databases.listDocuments(
+            conf.appwriteDatabaseID,
+            conf.appwriteCollectionID,
+            queries
+        );
     }
 
     async uploadFile(file) {
-        try {
-            return await this.bucket.createFile(
-                conf.appwriteBucketID,
-                ID.unique(),
-                file
-            )
-        }
-        catch (err) {
-            throw err;
-        }
+        return await this.bucket.createFile(
+            conf.appwriteBucketID,
+            ID.unique(),
+            file
+        );
     }
 
     async deleteFile(fileId) {
-        try {
-            await this.bucket.deleteFile(
-                conf.appwriteBucketID,
-                fileId
-            )
-        }
-        catch (error) {
-            throw error;
-        }
+        await this.bucket.deleteFile(conf.appwriteBucketID, fileId);
+        return true;
     }
 
     async filePreview(fileId) {
-        return this.bucket.getFilePreview(
-            conf.appwriteBucketID,
-            fileId
-        )
+        return this.bucket.getFilePreview(conf.appwriteBucketID, fileId);
     }
 }
 
 const service = new Service();
 
-export default Service;
+export default service;

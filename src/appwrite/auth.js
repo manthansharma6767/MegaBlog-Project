@@ -1,4 +1,4 @@
-import conf from "./conf.js";
+import conf from "../conf/conf.js";
 import { Client, Account, ID } from "appwrite";
 
 export class AuthService {
@@ -9,54 +9,42 @@ export class AuthService {
         this.client
             .setEndpoint(conf.appwriteUrl)
             .setProject(conf.appwriteProjectID);
-        this.account 
-        = new Account(this.client);
+
+        this.account = new Account(this.client);
     }
 
-    async createAccount({email ,password , name}) {
+    async createAccount({ email, password, name }) {
+        const userAccount = await this.account.create(ID.unique(), email, password, name);
+
+        if (userAccount) {
+            return await this.login({ email, password });
+        }
+
+        return userAccount;
+    }
+
+    async login({ email, password }) {
+        return await this.account.createEmailPasswordSession(email, password);
+    }
+
+    async getCurrentUser() {
         try {
-            const userAccount = await this.account.create(ID.unique() , email, password, name);
-            if (userAccount) {
-                // Call Login Method 
-                return await this.login({email , password});
-            } else {
-                return userAccount;
+            return await this.account.get();
+        } catch (error) {
+            if (error?.code === 401 || error?.type === 'user_unauthorized') {
+                return null;
             }
-        } catch (error) {
-            throw error;
-        }
-    }
 
-    async login({email , password}) {
-        try {
-            return await this.account.createEmailPasswordSession(email, password);
-        } catch (error) {
-            throw error;
+            console.error('Failed to fetch current user:', error);
+            return null;
         }
-
-    }
-
-    async  getCurrentUser() {
-        try {
-            const user = await this.account.get();
-            return user;
-        } catch (error) {
-            throw error;
-        }
-        return null;
     }
 
     async logout() {
-        try {
-            await this.account.deleteSessions();
-        }
-        catch (error) {
-            throw error;
-        }
+        await this.account.deleteSessions();
     }
-
 }
 
 const authService = new AuthService();
 
-export default AuthService;
+export default authService;
